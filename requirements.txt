@@ -1,6 +1,6 @@
-line-bot-sdk==2.3.0
-Flask==2.2.2
-Werkzeug<3.0.0
+line-bot-sdk
+Flask
+Werkzeug
 langchain
 openai
 google-generativeai
