@@ -34,7 +34,7 @@ def handle_message(event):
     user_input = event.message.text
 
     # 使用 Gemini 模型產生回覆
-    response = model.generate_text(
+    response = model.generate_content(
         prompt=user_input,
         max_output_tokens=256,
         temperature=0.7
