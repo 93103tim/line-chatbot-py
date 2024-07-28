@@ -1,6 +1,10 @@
-line-bot-sdk==2.3.0
-Flask==2.2.2
-Werkzeug<3.0.0
-langchain
-openai
+langchain 
+langchain-community 
+langchain-core 
+langchain-openai 
+faiss-cpu 
+line-bot-sdk 
+flask 
+openai 
+gunicorn 
 google-generativeai
