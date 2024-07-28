@@ -15,7 +15,7 @@ import datetime
 import openai
 import time
 import traceback
-
+import os
 app = Flask(__name__)
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 # Channel Access Token
