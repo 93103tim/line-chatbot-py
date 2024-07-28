@@ -24,7 +24,7 @@ line_bot_api = LineBotApi(os.getenv('CHANNEL_ACCESS_TOKEN'))
 # Channel Secret
 handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
 #Gemini api
-genai.configure(api_key=os.environ['GOOGLE_GEMINI_API_TOKEN'])
+genai.configure(api_key=os.environ['GOOGLE_GEMINI_API'])
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 def GPT_response(text):
