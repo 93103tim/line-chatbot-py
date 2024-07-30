@@ -1,5 +1,11 @@
+import os
+from langchain.memory import ConversationBufferMemory
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain.chains import ConversationalRetrievalChain
+from langchain_openai import ChatOpenAI
+from langchain.document_loaders.pdf import PyMuPDFLoader
 from flask import Flask, request, abort
-
 from linebot import (
     LineBotApi, WebhookHandler
 )
@@ -8,26 +14,29 @@ from linebot.exceptions import (
 )
 from linebot.models import *
 
-from chatbot_chain import get_chatbot_chain
-import os
+openai_api_key = os.getenv("OPENAI_API_KEY")#Openai Api Key
+line_bot_api = LineBotApi(os.getenv('CHANNEL_ACCESS_TOKEN'))# Channel Access Token
+handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))# Channel Secret
 
 app = Flask(__name__)
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
-# Channel Access Token
-line_bot_api = LineBotApi(os.getenv('CHANNEL_ACCESS_TOKEN'))
+def get_chatbot_chain(msg):
+    #載入檔案
+    loader = PyMuPDFLoader(file_path="https://reg.ttu.edu.tw/var/file/32/1032/attach/32/pta_26621_295944_06457.pdf")
+    documents = loader.load()
 
-# Channel Secret
-handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
+    #使用Faiss vectordb儲存由OpenaiEmbedding過的內容
+    vectorstore = FAISS.from_documents(documents, OpenAIEmbeddings(api_key=openai_api_key))
 
+    #儲存記憶
+    memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
 
-def GPT_response(text):
-    # 接收回應
-    response = get_chatbot_chain(text)
-    print("已收到回應訊息"+response.text)
+    chain = ConversationalRetrievalChain.from_llm(llm=ChatOpenAI(api_key=openai_api_key),
+                            retriever=vectorstore.as_retriever(),
+                            memory=memory)
     
-    return response.text
-
+    return chain.invoke(msg)
 
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
@@ -45,22 +54,18 @@ def callback():
         abort(400)
     return 'OK'
 
-
 # 處理訊息
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     msg = event.message.text
-    
-    GPT_answer = GPT_response(msg)
-    print(GPT_answer)
-    line_bot_api.reply_message(event.reply_token, TextSendMessage(GPT_answer))
+
+    line_bot_api.reply_message(event.reply_token, TextSendMessage(get_chatbot_chain(msg)))
         
 
 @handler.add(PostbackEvent)
 def handle_message(event):
     print(event.postback.data)
 
-import os
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
