@@ -9,14 +9,7 @@ from linebot.exceptions import (
 from linebot.models import *
 
 from chatbot_chain import get_chatbot_chain
-
-import tempfile
-import datetime
-import openai
-import time
-import traceback
 import os
-import google.generativeai as genai
 
 app = Flask(__name__)
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
@@ -27,13 +20,10 @@ line_bot_api = LineBotApi(os.getenv('CHANNEL_ACCESS_TOKEN'))
 # Channel Secret
 handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
 
-#Gemini api
-genai.configure(api_key=os.environ['GOOGLE_GEMINI_API'])
-model = genai.GenerativeModel('gemini-1.5-flash')
 
 def GPT_response(text):
     # 接收回應
-    response = model.generate_content(text)
+    response = get_chatbot_chain(text)
     print("已收到回應訊息"+response.text)
     
     return response.text
