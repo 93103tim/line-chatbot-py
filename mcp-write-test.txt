@@ -1,0 +1,2 @@
+GitHub MCP 寫入測試成功！
+此檔案由 MCP Inspector 建立。
