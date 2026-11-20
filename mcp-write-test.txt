@@ -1,0 +1,3 @@
+GitHub MCP 寫入測試成功！
+此檔案由 MCP Inspector 建立。
+GitHub MCP 修改既有檔案測試成功！
